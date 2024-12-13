@@ -13,7 +13,7 @@ class ContinuousMountainCarEnvExtended(Continuous_MountainCarEnv):
             reward = 100
         else:
             reward = -1
-        done = done or self.actual_steps >= self.max_steps # asegurarnos que el episodio no dure más de 1000 pasos
+        done = done or self.actual_steps >= self.max_steps
         return obs, reward, done, False, {}
     
     def reset(self, *args, **kwargs):
