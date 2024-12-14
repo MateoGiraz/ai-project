@@ -1,0 +1,89 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environments
+.env/
+.venv/
+env/
+venv/
+ENV/
+
+# Poetry-specific
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pytest_cache/
+__pypackages__/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Config files for Jupyter
+jupyter_notebook_config.py
+custom.js
+custom.css
+
+# Output from Jupyter Notebooks
+*.out
+
+# Environment variables and secrets
+.env
+.env.*
+
+# Logs
+*.log
+*.out
+*.err
+
+# WandB (Weights & Biases)
+wandb/
+wandb-debug.log
+
+# Local SQLite database files
+*.sqlite3
+
+# VSCode-specific
+.vscode/
+*.code-workspace
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Cache files
+*.cache
+*.bak
+*.swp
+*.temp
+*.tmp
+
+# Compiled files
+*.o
+*.a
+*.dylib
+*.dll
+*.exe
+
+# Build files
+build/
+dist/
+*.egg-info/
+
+# Python egg files
+*.egg
+.eggs/
+
+# Unit test / coverage reports
+htmlcov/
+coverage.*
+*.cover
+*.py,cover
+.hypothesis/
+
+# Ignore Jupyter notebook's metadata changes
+*.ipynb_metadata
