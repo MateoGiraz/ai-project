@@ -3,83 +3,65 @@ from board import Board
 import numpy as np
 
 class ExpectiMaxAgent(Agent):
-    def __init__(self, player=1, max_depth=3):
+    def __init__(self, player=1, 
+                 max_depth=3, 
+                 alignment_weight=1,
+                 trap_weight=1, 
+                 moves_weight=1):
         super().__init__(player)
         self.max_depth = max_depth
-        self.opponent = 2 if player == 1 else 1
+        self.opponent = 2
+
+        # Pesos para las heurísticas
+        self.alignment_weight = alignment_weight
+        self.trap_weight = trap_weight
+        self.moves_weight = moves_weight
 
     def heuristic_utility(self, board):
         """
-        Heurística personalizada para evaluar el estado del tablero.
+        Heurística que evalúa el estado del tablero.
         """
-        proximity_to_center = self.evaluate_proximity_to_center(board)
-        musketeer_mobility = self.evaluate_musketeer_mobility(board)
-        enemy_mobility = self.evaluate_enemy_mobility(board)
-        musketeer_distance = self.evaluate_musketeer_distance(board)
-        enemy_proximity = self.evaluate_enemy_proximity_to_musketeers(board)
         alignment_penalty = self.evaluate_alignment_penalty(board)
         trap_penalty = self.evaluate_trap_penalty(board)
-        
+        moves_score = self.evaluate_moves_score(board)
+
         return (
-            2 * proximity_to_center + 
-            1.5 * musketeer_mobility - 
-            1 * enemy_mobility - 
-            1.5 * musketeer_distance + 
-            2 * enemy_proximity - 
-            5 * alignment_penalty - 
-            10 * trap_penalty
+            self.alignment_weight * alignment_penalty + 
+            self.trap_weight * trap_penalty +
+            self.moves_weight * moves_score
         )
-
-    def evaluate_proximity_to_center(self, board):
-        center = (board.board_size[0] // 2, board.board_size[1] // 2)
-        musketeer_positions = board.find_musketeer_positions()
-        proximity = -sum(
-            abs(pos[0] - center[0]) + abs(pos[1] - center[1])
-            for pos in musketeer_positions
-        )
-        return proximity
-
-    def evaluate_musketeer_mobility(self, board):
-        return len(board.get_musketeer_valid_movements())
-
-    def evaluate_enemy_mobility(self, board):
-        return len(board.get_enemy_valid_movements())
-
-    def evaluate_musketeer_distance(self, board):
-        positions = board.find_musketeer_positions()
-        total_distance = 0
-        count = 0
-        for i in range(len(positions)):
-            for j in range(i + 1, len(positions)):
-                total_distance += abs(positions[i][0] - positions[j][0]) + abs(positions[i][1] - positions[j][1])
-                count += 1
-        return total_distance / (count if count > 0 else 1)
-
-    def evaluate_enemy_proximity_to_musketeers(self, board):
-        musketeer_positions = board.find_musketeer_positions()
-        enemy_positions = board.find_enemy_positions()
-        proximity = 0
-        for m_pos in musketeer_positions:
-            for e_pos in enemy_positions:
-                proximity += 1 / (abs(m_pos[0] - e_pos[0]) + abs(m_pos[1] - e_pos[1]) + 1)
-        return proximity
 
     def evaluate_alignment_penalty(self, board):
+        """
+        Penaliza si los mosqueteros están alineados en una fila o columna.
+        """
         musketeer_positions = board.find_musketeer_positions()
         rows = [pos[0] for pos in musketeer_positions]
         cols = [pos[1] for pos in musketeer_positions]
 
         if len(set(rows)) == 1 or len(set(cols)) == 1:
-            return 1
+            return -50
         return 0
 
     def evaluate_trap_penalty(self, board):
+        """
+        Penaliza si un mosquetero pisa una trampa.
+        """
         trap_position = board.find_trap_position()
         musketeer_positions = board.find_musketeer_positions()
         
         if trap_position and trap_position in musketeer_positions:
-            return 1
+            return -100  # Penalización fuerte por pisar la trampa
         return 0
+    
+    def evaluate_moves_score(self, board):
+        """
+        Puntaje basado en movimientos disponibles.
+        """
+        my_moves = len(board.get_possible_actions(self.player))
+            
+        # Queremos minimizar movimientos propios y del oponente
+        return -1 * my_moves
 
     def next_action(self, obs):
         """
@@ -112,7 +94,7 @@ class ExpectiMaxAgent(Agent):
                     max_eval = eval
                     best_action = action
             return max_eval, best_action
-        else:  # Nodo Expectativo
+        else:
             total_eval = 0
             for action in actions:
                 board_copy = board.clone()
